@@ -1,0 +1,96 @@
+---
+title: "CUNY SPS - Master of Science in Data Science - DATA607 "
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Assignment 3: R Character Manipulation
+# Mario Pena
+# 9/15/2019
+
+In this assignment we will work with regular expressions used to manipulate characters in R:
+
+1. Copy the introductory example. The vector *name* stores the extracted names.
+
+-Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name
+
+```{r}
+library(stringr)
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555 -6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+```
+We will now change the order of two of these names so they conform to the standard first_name last_name:
+```{r}
+first_change<-sub("(\\w+),\\s([[:upper:]].)\\s(\\w+)","\\2 \\3 \\1", name) # I have made the changes in two steps, hence the "first_change", which I will use in the code below.
+first_last_name<-sub("(\\w+),\\s(\\w+)","\\2 \\1", first_change)
+first_last_name
+```
+-Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+
+In this next step we'll extract the titles from the names above:
+```{r}
+title<-unlist(str_extract_all(first_last_name, "[[:alpha:]]{2,}[.]"))
+title
+```
+-Construct a logical vector indicating whether a character has a second name.
+
+And now we will extract any second name from the character:
+```{r}
+first_change_2<-unlist(str_extract_all(name, "([[:upper:]].)\\s(\\w+)")) # I have made the changes in two steps, hence the "first_change_2", which I will use in the code below.
+second_name<-unlist(str_extract_all(first_change_2, "[[:alpha:]]{2,}"))
+second_name
+```
+
+2. Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+-[0-9]+\\$: Pattern that has any number followed by $ sign attached.
+
+Example:
+
+```{r}
+example <- ("This will get extracted '533$' below")
+str_extract(example, "[0-9]+\\$")
+```
+
+-\\b[a-z]{1,4}\\b: Pattern that excludes any word with a capital letter, and includes words of character lenght from 1 to 4 only.
+
+Example:
+
+```{r}
+example_2 <- ("This example will nOt show the number 10 but it will show ten")
+unlist(str_extract_all(example_2, "\\b[a-z]{1,4}\\b"))
+```
+
+-.*?\\.txt$: This pattern includes any characters, numbers, spaces but it needs to end in .txt other wise it will not be matched.
+
+Example:
+
+```{r}
+example_3 <- ("This whole sentence with numbers '45' and special characters *# will not get extracted")
+unlist(str_extract_all(example_3, ".*?\\.txt$"))
+```
+```{r}
+example_4 <- ("This whole sentence with numbers '45' and special characters *# will get extracted .txt")
+unlist(str_extract_all(example_4, ".*?\\.txt$"))
+```
+
+-\\d{2}/\\d{2}/\\d{4}: This pattern matches dates in the form dd/mm/yyyy.
+
+Example:
+
+```{r}
+example_5 <- "Let's extract the date 09/15/2019 and show it below:"
+unlist(str_extract_all(example_5, "\\d{2}/\\d{2}/\\d{4}"))
+```
+
+-<(.+?)>.+?</\\\1>: This pattern matches any characters inside < > and then anything in between until we reach the same pattern again but this time ending with </ >.
+
+Example:
+
+```{r}
+example_6 <- "We will build <this sentence> and repeat </this sentence> again."
+unlist(str_extract_all(example_6, "<(.+?)>.+?</\\1>")) #Notice only matched pattern is extracted below.
+```
